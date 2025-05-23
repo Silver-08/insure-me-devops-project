@@ -1,9 +1,14 @@
-FROM openjdk:11-jre-slim
+# Use official OpenJDK 17 runtime image as base
+FROM openjdk:17-jdk-alpine
 
-ARG JAR_FILE=target/*.jar
+# Set working directory inside the container
+WORKDIR /app
 
-COPY ${JAR_FILE} app.jar
+# Copy the built jar file into the container
+COPY target/insure-me-1.0.jar insure-me.jar
 
-EXPOSE 8080
+# Expose port 8081 (as your app runs on 8081)
+EXPOSE 8081
 
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+# Run the jar file
+ENTRYPOINT ["java", "-jar", "insure-me.jar"]

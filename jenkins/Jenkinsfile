@@ -1,36 +1,54 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Checkout') {
-            steps {
-                // Clone the official app repo directly
-                git branch: 'main', url: 'https://github.com/StarAgileDevOpsTraining/star-agile-insurance-project.git'
-            }
-        }
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // Jenkins stored credentials id
+        DOCKER_IMAGE_NAME = 'silvy08/insure-me-app'
+        GIT_REPO = 'https://github.com/StarAgileDevOpsTraining/star-agile-insurance-project.git'
+    }
 
-        stage('Build') {
+    stages {
+        stage('Clone Repository') {
             steps {
-                // Use Maven Wrapper to build the app
-                sh './mvnw clean package -DskipTests'
+                echo 'Cloning GitHub repository...'
+                git branch: 'main', url: "${env.GIT_REPO}"
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Build Docker image and tag it
-                    docker.build("silver08/insure-me-app:latest")
-                }
+                echo 'Building Docker image...'
+                sh 'docker build -t $DOCKER_IMAGE_NAME:latest .'
             }
         }
 
-        stage('Deploy') {
+        stage('Login to Docker Hub') {
             steps {
-                // You can add deployment commands here or use Ansible later
-                echo "Deploy stage - Add deployment steps here"
+                echo 'Logging into Docker Hub...'
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                echo 'Pushing Docker image to Docker Hub...'
+                sh 'docker push $DOCKER_IMAGE_NAME:latest'
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                echo 'Deploying application using Ansible...'
+                sh 'ansible-playbook -i ansible/inventory ansible/playbook.yml'
             }
         }
     }
-}
 
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            sh 'docker logout'
+            cleanWs()
+        }
+    }
+}
