@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clone the official app repo directly
+                git branch: 'main', url: 'https://github.com/StarAgileDevOpsTraining/star-agile-insurance-project.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Use Maven Wrapper to build the app
+                sh './mvnw clean package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build Docker image and tag it
+                    docker.build("silver08/insure-me-app:latest")
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // You can add deployment commands here or use Ansible later
+                echo "Deploy stage - Add deployment steps here"
+            }
+        }
+    }
+}
+

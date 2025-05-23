@@ -44,6 +44,16 @@ This project demonstrates a simple CI/CD pipeline for the _Insure Me_ Spring Boo
 
 Open a browser and go to `http://<EC2-public-ip>:8080`.
 
+## About the App Code
+
+The main application source code is **not included** in this repository.
+
+During the Jenkins CI/CD pipeline, the app code is cloned directly from its original public GitHub repository.
+
+This keeps the project repository clean and focused on DevOps configurations.
+
+Make sure your Jenkinsfile contains the appropriate commands to clone the app repository during the build stage.
+
 ---
 
 _For any questions, reach out to Silver-08._
